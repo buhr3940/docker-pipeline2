@@ -1,0 +1,88 @@
+Started by user admin
+Obtained Jenkinsfile from git https://github.com/buhr3940/docker-pipeline2.git
+Running in Durability level: MAX_SURVIVABILITY
+[Pipeline] properties
+[Pipeline] node
+Running on 57fa278d3c1c in /workspace/docker-pipeline2
+[Pipeline] {
+[Pipeline] git
+ > git rev-parse --is-inside-work-tree # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/buhr3940/docker-pipeline2.git # timeout=10
+Fetching upstream changes from https://github.com/buhr3940/docker-pipeline2.git
+ > git --version # timeout=10
+using GIT_ASKPASS to set credentials Github PAT
+ > git fetch --tags --progress https://github.com/buhr3940/docker-pipeline2.git +refs/heads/*:refs/remotes/origin/*
+ > git rev-parse refs/remotes/origin/master^{commit} # timeout=10
+ > git rev-parse refs/remotes/origin/origin/master^{commit} # timeout=10
+Checking out Revision 8cb58bd55255e40fff0545e8deb1bce0bcda6abb (refs/remotes/origin/master)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 8cb58bd55255e40fff0545e8deb1bce0bcda6abb
+ > git branch -a -v --no-abbrev # timeout=10
+ > git branch -D master # timeout=10
+ > git checkout -b master 8cb58bd55255e40fff0545e8deb1bce0bcda6abb
+Commit message: "Update Dockerfile"
+ > git rev-list --no-walk 8ed3163771491c4cbc2c727351a8af9f27b17c8b # timeout=10
+[Pipeline] stage
+[Pipeline] { (Setup)
+[Pipeline] sh
+[docker-pipeline2] Running shell script
++ aws s3 cp s3://buhr3940-pipeline-bucket/classweb.html workspace/docker-pipeline2/index.html
+Completed 63 Bytes/63 Bytes (1.6 KiB/s) with 1 file(s) remaining
+download: s3://buhr3940-pipeline-bucket/classweb.html to workspace/docker-pipeline2/index.html
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+[Pipeline] sh
+[docker-pipeline2] Running shell script
++ docker build -t classweb:1.0 .
+Sending build context to Docker daemon  119.8kB
+
+Step 1/6 : FROM nginx
+ ---> ae513a47849c
+Step 2/6 : LABEL MAINTAINER='Eric Buhr'
+ ---> Using cache
+ ---> e79d10fc389a
+Step 3/6 : LABEL EMAIL='buhr3940@stthomas.edu'
+ ---> Using cache
+ ---> 6446385e1bbc
+Step 4/6 : RUN apt-get update -y
+ ---> Using cache
+ ---> 99003f9345db
+Step 5/6 : EXPOSE 80
+ ---> Using cache
+ ---> b675583fcc44
+Step 6/6 : COPY workspace/docker-pipeline2/index.html usr/share/nginx/html/
+ ---> 1728f5a0ebe5
+Successfully built 1728f5a0ebe5
+Successfully tagged classweb:1.0
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Test)
+[Pipeline] sh
+[docker-pipeline2] Running shell script
++ docker run -d -p 80:80 --env NGINX_PORT=80 --name classweb1 classweb:1.0
+848a6061cf17cfdc880c3946a4213968d213ad5e17414e9f884609d54c27e13a
+[Pipeline] sh
+[docker-pipeline2] Running shell script
++ curl -s 10.120.1.247
+<html>
+<body>
+  <h1>My class webserver</h1>
+</body>
+</html>[Pipeline] sh
+[docker-pipeline2] Running shell script
++ docker stop classweb1
+classweb1
+[Pipeline] sh
+[docker-pipeline2] Running shell script
++ docker rm classweb1
+classweb1
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
