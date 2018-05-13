@@ -1,16 +1,16 @@
 properties([pipelineTriggers([githubPush()])])
 node('linux') {
-    git credentialsId: 'ae5361da-5ab8-4fe8-ae42-f096692d7417', url: 'https://github.com/buhr3940/docker-pipeline2.git'
-    stage('Test') {
-        sh "env"
+    stage('Setup') {
+        git credentialsId: 'ae5361da-5ab8-4fe8-ae42-f096692d7417', url: 'https://github.com/buhr3940/docker-pipeline2.git'
+        sh 'aws s3 cp s3://buhr3940-pipeline-bucket/classweb.html workspace/docker-pipeline2/index.html'
     }
-
-stage ("GetInstances") {
-
-     sh "aws ec2 describe-instances --region us-east-1"
-}
-
-stage ("CreateInstance") {
-    sh "aws ec2 run-instances --image-id ami-467ca739 --count 1 --instance-type t2.micro --key-name classroom --security-group-ids sg-c895ed81 --subnet-id subnet-d3e94199 --region us-east-1"
+    stage ('Build') {
+        sh 'docker build -t classweb:1.0 .
+    }
+    stage('Test') {
+        sh 'docker run -d -p 80:80 --env NGINX_PORT=80 --name classweb1 classweb:1.0'
+        curl -s 10.120.1.247
+        sh 'docker stop classweb1'
+        sh 'docker rm classweb1' 
     }
 }
