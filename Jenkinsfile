@@ -2,7 +2,7 @@ properties([pipelineTriggers([githubPush()])])
     node('linux') {
         git credentialsId: 'ae5361da-5ab8-4fe8-ae42-f096692d7417', url: 'https://github.com/buhr3940/docker-pipeline2.git'
         stage('Setup') {
-            sh 'aws s3 cp s3://buhr3940-pipeline-bucket/cla.html index.html'
+            sh 'aws s3 cp s3://buhr3940-pipeline-bucket/classweb.html workspace/docker-pipeline2/index.html'
         }
         stage ('Build') {
             sh 'docker build -t classweb:1.0 .'
